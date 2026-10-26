@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>柑仔店博物館｜KAM-A-TIAM MEMORY MUSEUM</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Anime.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Zen+Old+Mincho:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#F7F3E9',
+                        paper: '#EFEAD8',
+                        brick: '#A94A42',
+                        'brick-dark': '#83342E',
+                        mustard: '#D99B26',
+                        darkgreen: '#2C4A3E',
+                        coffee: '#4A3525',
+                        'coffee-light': '#6B503A',
+                    },
+                    fontFamily: {
+                        retro: ['"Zen Old Mincho"', '"Noto Serif TC"', 'serif'],
+                        serif: ['"Noto Serif TC"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 懷舊紙張質感與複古紋理 */
+        body {
+            background-color: #F7F3E9;
+            color: #4A3525;
+            background-image: radial-gradient(#d5ceb8 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+        }
+
+        .paper-card {
+            background-color: #EFEAD8;
+            border: 2px solid #4A3525;
+            box-shadow: 4px 4px 0px #4A3525;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .paper-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 6px 6px 0px #4A3525;
+        }
+
+        .signboard {
+            background-color: #A94A42;
+            color: #F7F3E9;
+            border: 3px solid #4A3525;
+            box-shadow: 0 4px 0 #2C4A3E, 4px 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .retro-border {
+            border: 2px dashed #D99B26;
+        }
+
+        /* 門簾與復古遮罩特效 */
+        .curtain-left, .curtain-right {
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        
+        .open-door .curtain-left {
+            transform: translateX(-100%);
+        }
+        .open-door .curtain-right {
+            transform: translateX(100%);
+        }
+
+        /* 隱藏滾動條但保持滾動 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-serif antialiased min-h-screen flex flex-col selection:bg-mustard selection:text-coffee">
+
+    <!-- 時光門簾入口 (Hero Doors Overlay) -->
+    <div id="doorOverlay" class="fixed inset-0 z-50 flex pointer-events-auto transition-opacity duration-500">
+        <div class="curtain-left w-1/2 h-full bg-brick border-r-4 border-coffee flex flex-col justify-center items-end pr-4 sm:pr-12 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+            <div class="text-right z-10">
+                <span class="inline-block bg-mustard text-coffee text-xs sm:text-sm font-bold px-3 py-1 rounded border border-coffee mb-2">昭和～平成 / 民國50-80年代</span>
+                <h1 class="font-retro text-3xl sm:text-6xl text-cream font-extrabold tracking-wider">柑仔店</h1>
+            </div>
+        </div>
+        <div class="curtain-right w-1/2 h-full bg-brick border-l-4 border-coffee flex flex-col justify-center items-start pl-4 sm:pl-12 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+            <div class="text-left z-10">
+                <span class="inline-block bg-darkgreen text-cream text-xs sm:text-sm font-bold px-3 py-1 rounded border border-cream mb-2">童年記憶博物館</span>
+                <h1 class="font-retro text-3xl sm:text-6xl text-cream font-extrabold tracking-wider">博物館</h1>
+            </div>
+        </div>
+
+        <!-- 開門按鈕與標題資訊 -->
+        <div id="doorContent" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 z-20">
+            <div class="paper-card p-6 sm:p-10 max-w-lg w-full bg-cream rounded-lg relative overflow-hidden text-center">
+                <div class="w-full border-b-2 border-coffee pb-4 mb-4">
+                    <p class="text-xs sm:text-sm text-coffee-light font-bold tracking-widest uppercase">Kam-A-Tiam Memory Museum</p>
+                    <h2 class="font-retro text-2xl sm:text-4xl text-brick font-bold mt-1">那一年，我們在柑仔店<br>買的童年</h2>
+                </div>
+                <p class="text-sm sm:text-base text-coffee mb-6 leading-relaxed">
+                    推開木格玻璃門，轉開紅蓋塑膠糖果罐。<br>重溫 1960 ~ 1990 年代，台灣街坊巷弄間最溫暖的人情記憶。
+                </p>
+                <button id="openDoorBtn" onclick="enterMuseum()" class="signboard px-8 py-3 rounded-full text-lg font-bold tracking-wider hover:bg-brick-dark cursor-pointer flex items-center justify-center gap-2 mx-auto">
+                    <i data-lucide="door-open" class="w-5 h-5"></i>
+                    推開店門．走進時光
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 導覽列 Navigation -->
+    <header class="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b-2 border-coffee shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2">
+                <div class="bg-brick text-cream px-2.5 py-1 rounded font-retro font-bold text-lg border border-coffee">柑</div>
+                <span class="font-retro font-bold text-lg sm:text-xl text-coffee">柑仔店博物館</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-6 font-bold text-coffee">
+                <a href="#hero" class="hover:text-brick transition">首頁</a>
+                <a href="#timeline" class="hover:text-brick transition">時光故事</a>
+                <a href="#catalog" class="hover:text-brick transition">商品圖鑑</a>
+                <a href="#quiz" class="hover:text-brick transition">記憶遊戲</a>
+                <a href="#archive" class="hover:text-brick transition">文化檔案</a>
+            </nav>
+            <button onclick="toggleMobileMenu()" class="md:hidden text-coffee p-1 focus:outline-none">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <!-- 行動裝置選單 -->
+        <div id="mobileMenu" class="hidden md:hidden bg-paper border-b-2 border-coffee px-4 py-3 flex-col gap-3 font-bold text-coffee">
+            <a href="#hero" onclick="toggleMobileMenu()" class="block py-1">首頁</a>
+            <a href="#timeline" onclick="toggleMobileMenu()" class="block py-1">時光故事</a>
+            <a href="#catalog" onclick="toggleMobileMenu()" class="block py-1">商品圖鑑</a>
+            <a href="#quiz" onclick="toggleMobileMenu()" class="block py-1">記憶遊戲</a>
+            <a href="#archive" onclick="toggleMobileMenu()" class="block py-1">文化檔案</a>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- 1. 首頁區塊 Hero Section -->
+        <section id="hero" class="relative py-12 md:py-20 px-4 max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                <!-- 左側文案 -->
+                <div class="md:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 bg-mustard/20 text-mustard border border-mustard px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        台灣傳統雜貨店數位典藏館
+                    </div>
+                    <h1 class="font-retro text-3xl sm:text-5xl font-black text-coffee leading-tight">
+                        巷口那一間<br>
+                        <span class="text-brick relative inline-block">
+                            裝滿夢想與童年
+                            <svg class="absolute -bottom-2 left-0 w-full h-3 text-mustard" viewBox="0 0 100 12" preserveAspectRatio="none"><path d="M0 8 Q 25 0, 50 8 T 100 8" fill="none" stroke="currentColor" stroke-width="4"/></svg>
+                        </span>
+                        的小天地
+                    </h1>
+                    <p class="text-base sm:text-lg text-coffee-light leading-relaxed">
+                        在便利商店尚未遍地開花的年代，「柑仔店」不只是購買日用品的地方，更是鄰里交流的情報站、孩童放學後的冒險樂園。那裡有抽獎的快感、紅球糖的甘甜，以及老闆阿嬤親切的問候。
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <a href="#catalog" class="paper-card bg-mustard text-coffee px-6 py-3 rounded-lg font-bold flex items-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                            探索懷舊商品
+                        </a>
+                        <a href="#timeline" class="paper-card bg-cream text-coffee px-6 py-3 rounded-lg font-bold flex items-center gap-2">
+                            <i data-lucide="history" class="w-5 h-5"></i>
+                            閱讀演進歷史
+                        </a>
+                    </div>
+                </div>
+                <!-- 右側懷舊場景視覺卡片 -->
+                <div class="md:col-span-5">
+                    <div class="paper-card bg-paper p-4 rounded-xl relative overflow-hidden">
+                        <!-- 模擬柑仔店陳列層架視覺 SVG/CSS插畫 -->
+                        <div class="border-4 border-coffee rounded-lg bg-[#E8DFCA] p-4 text-center space-y-4 relative">
+                            <div class="bg-brick text-cream font-retro font-bold py-1 px-4 rounded border border-coffee shadow text-sm sm:text-base">
+                                榮發古早味雜貨店
+                            </div>
+                            <!-- 櫥窗商品架模擬 -->
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="bg-cream border border-coffee p-2 rounded flex flex-col items-center justify-center">
+                                    <span class="text-2xl">🍬</span>
+                                    <span class="text-xs font-bold text-coffee mt-1">飛機餅乾</span>
+                                </div>
+                                <div class="bg-cream border border-coffee p-2 rounded flex flex-col items-center justify-center">
+                                    <span class="text-2xl">🥤</span>
+                                    <span class="text-xs font-bold text-coffee mt-1">彈珠汽水</span>
+                                </div>
+                                <div class="bg-cream border border-coffee p-2 rounded flex flex-col items-center justify-center">
+                                    <span class="text-2xl">🪀</span>
+                                    <span class="text-xs font-bold text-coffee mt-1">木製陀螺</span>
+                                </div>
+                                <div class="bg-cream border border-coffee p-2 rounded flex flex-col items-center justify-center">
+                                    <span class="text-2xl">🎴</span>
+                                    <span class="text-xs font-bold text-coffee mt-1">尪仔標</span>
+                                </div>
+                                <div class="bg-cream border border-coffee p-2 rounded flex flex-col items-center justify-center">
+                                    <span class="text-2xl">🍫</span>
+                                    <span class="text-xs font-bold text-coffee mt-1">巧克力膏</span>
+                                </div>
+                                <div class="bg-cream border border-coffee p-2 rounded flex flex-col items-center justify-center">
+                                    <span class="text-2xl">📦</span>
+                                    <span class="text-xs font-bold text-coffee mt-1">抽籤組</span>
+                                </div>
+                            </div>
+                            <div class="bg-darkgreen text-cream p-2 rounded text-xs font-bold flex justify-between items-center">
+                                <span>賒帳本登記中...</span>
+                                <span class="bg-mustard text-coffee px-2 py-0.5 rounded text-[10px]">賒免</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 時光故事 Section -->
+        <section id="timeline" class="py-16 bg-paper/50 border-y-2 border-coffee">
+            <div class="max-w-5xl mx-auto px-4">
+                <div class="text-center max-w-xl mx-auto mb-12">
+                    <span class="text-brick font-bold text-sm tracking-widest uppercase">History Timeline</span>
+                    <h2 class="font-retro text-3xl sm:text-4xl font-bold text-coffee mt-1">柑仔店的年代記憶</h2>
+                    <p class="text-coffee-light mt-2 text-sm sm:text-base">從早期農村的「竹籠籃販」，到鼎盛時期的鄰里中心，見證台灣經濟與生活的蛻變。</p>
+                </div>
+
+                <!-- 時間軸互動控制 -->
+                <div class="relative">
+                    <!-- 中央縱線 -->
+                    <div class="hidden md:block absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1 bg-coffee/30"></div>
+
+                    <div class="space-y-8 relative" id="timelineList">
+                        <!-- 1960s -->
+                        <div class="timeline-item flex flex-col md:flex-row items-center gap-6">
+                            <div class="md:w-1/2 md:text-right space-y-2">
+                                <span class="bg-brick text-cream px-3 py-1 rounded-full font-bold text-sm inline-block">1960 年代</span>
+                                <h3 class="font-retro text-xl font-bold text-coffee">農村聚落與物資交換的起點</h3>
+                                <p class="text-sm text-coffee-light leading-relaxed">早期物資缺乏，雜貨店常以竹編「柑仔」（竹籠）盛裝日用品。店主提供賒帳服務（寄冊仔），成為村落間極具信任感的人情紐帶。</p>
+                            </div>
+                            <div class="z-10 w-10 h-10 rounded-full bg-mustard border-2 border-coffee flex items-center justify-center font-bold text-coffee shrink-0">60</div>
+                            <div class="md:w-1/2 paper-card p-4 rounded-lg bg-cream w-full">
+                                <div class="text-xs text-coffee-light border-b border-coffee/20 pb-2 mb-2 font-bold">歷史特點</div>
+                                <ul class="text-xs text-coffee space-y-1 list-disc list-inside">
+                                    <li>散裝稱重銷售（米、鹽、糖）</li>
+                                    <li>手寫賒帳本（賒冊）制度</li>
+                                    <li>木架與玻璃大瓶陳列</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 1970s -->
+                        <div class="timeline-item flex flex-col md:flex-row-reverse items-center gap-6">
+                            <div class="md:w-1/2 md:text-left space-y-2">
+                                <span class="bg-darkgreen text-cream px-3 py-1 rounded-full font-bold text-sm inline-block">1970 年代</span>
+                                <h3 class="font-retro text-xl font-bold text-coffee">工業起飛與零食大爆發</h3>
+                                <p class="text-sm text-coffee-light leading-relaxed">隨著台灣加工食品業崛起，彩色塑膠包裝、鐵盒餅乾與玻璃瓶汽水問世。放學後的柑仔店成為小學生抽籤、買零嘴的聖地。</p>
+                            </div>
+                            <div class="z-10 w-10 h-10 rounded-full bg-mustard border-2 border-coffee flex items-center justify-center font-bold text-coffee shrink-0">70</div>
+                            <div class="md:w-1/2 paper-card p-4 rounded-lg bg-cream w-full">
+                                <div class="text-xs text-coffee-light border-b border-coffee/20 pb-2 mb-2 font-bold">代表文化</div>
+                                <ul class="text-xs text-coffee space-y-1 list-disc list-inside">
+                                    <li>綠洲汽水、黑松汽水玻璃瓶普及</li>
+                                    <li>當紅童玩：尪仔標、塑膠彈珠</li>
+                                    <li>「抽籤仔」（洞洞樂）娛樂盛行</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 1980s -->
+                        <div class="timeline-item flex flex-col md:flex-row items-center gap-6">
+                            <div class="md:w-1/2 md:text-right space-y-2">
+                                <span class="bg-mustard text-coffee px-3 py-1 rounded-full font-bold text-sm inline-block">1980 年代</span>
+                                <h3 class="font-retro text-xl font-bold text-coffee">柑仔店的全盛黃金期</h3>
+                                <p class="text-sm text-coffee-light leading-relaxed">街頭巷尾幾乎百步就有一家柑仔店，兼營公共電話、公賣局煙酒零售。店門口放置街機遊戲機或冰棒櫃，是社區社交中心。</p>
+                            </div>
+                            <div class="z-10 w-10 h-10 rounded-full bg-mustard border-2 border-coffee flex items-center justify-center font-bold text-coffee shrink-0">80</div>
+                            <div class="md:w-1/2 paper-card p-4 rounded-lg bg-cream w-full">
+                                <div class="text-xs text-coffee-light border-b border-coffee/20 pb-2 mb-2 font-bold">代表文化</div>
+                                <ul class="text-xs text-coffee space-y-1 list-disc list-inside">
+                                    <li>公賣局鐵牌招牌認證</li>
+                                    <li>小巧投幣式街機（如小瑪莉）</li>
+                                    <li>王子麵、巧克力膏、綠茶冰</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 1990s+ -->
+                        <div class="timeline-item flex flex-col md:flex-row-reverse items-center gap-6">
+                            <div class="md:w-1/2 md:text-left space-y-2">
+                                <span class="bg-coffee text-cream px-3 py-1 rounded-full font-bold text-sm inline-block">1990 年代至今</span>
+                                <h3 class="font-retro text-xl font-bold text-coffee">連鎖超商崛起與文化轉型</h3>
+                                <p class="text-sm text-coffee-light leading-relaxed">24小時便利商店快速普及，傳統柑仔店數量銳減。然而其承載的濃厚人情味與童年記憶，逐漸轉化為珍貴的台灣地方文化遺產。</p>
+                            </div>
+                            <div class="z-10 w-10 h-10 rounded-full bg-mustard border-2 border-coffee flex items-center justify-center font-bold text-coffee shrink-0">90</div>
+                            <div class="md:w-1/2 paper-card p-4 rounded-lg bg-cream w-full">
+                                <div class="text-xs text-coffee-light border-b border-coffee/20 pb-2 mb-2 font-bold">現代意義</div>
+                                <ul class="text-xs text-coffee space-y-1 list-disc list-inside">
+                                    <li>數位化典藏與博物館展覽</li>
+                                    <li>復古文創商品與觀光柑仔店</li>
+                                    <li>不可替代的社區情感記憶</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 商品圖鑑 Section -->
+        <section id="catalog" class="py-16 max-w-6xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                <div>
+                    <span class="text-brick font-bold text-sm tracking-widest uppercase">Vintage Treasures</span>
+                    <h2 class="font-retro text-3xl sm:text-4xl font-bold text-coffee mt-1">打開童年的抽屜｜商品圖鑑</h2>
+                </div>
+                <!-- 篩選按鈕 -->
+                <div class="flex flex-wrap gap-2" id="filterBtnGroup">
+                    <button onclick="filterCatalog('all')" class="catalog-filter-btn active paper-card px-4 py-1.5 rounded-full text-sm font-bold bg-brick text-cream">全部商品</button>
+                    <button onclick="filterCatalog('snacks')" class="catalog-filter-btn paper-card px-4 py-1.5 rounded-full text-sm font-bold bg-cream text-coffee">懷舊零食</button>
+                    <button onclick="filterCatalog('drinks')" class="catalog-filter-btn paper-card px-4 py-1.5 rounded-full text-sm font-bold bg-cream text-coffee">飲料食品</button>
+                    <button onclick="filterCatalog('toys')" class="catalog-filter-btn paper-card px-4 py-1.5 rounded-full text-sm font-bold bg-cream text-coffee">童年玩具</button>
+                    <button onclick="filterCatalog('daily')" class="catalog-filter-btn paper-card px-4 py-1.5 rounded-full text-sm font-bold bg-cream text-coffee">生活雜貨</button>
+                </div>
+            </div>
+
+            <!-- 商品網格 Card Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="catalogGrid">
+                <!-- 由 JS 動態繪製與篩選 -->
+            </div>
+        </section>
+
+        <!-- 4. 記憶遊戲 Section -->
+        <section id="quiz" class="py-16 bg-paper/60 border-t-2 border-coffee">
+            <div class="max-w-4xl mx-auto px-4">
+                <div class="text-center max-w-xl mx-auto mb-10">
+                    <span class="text-brick font-bold text-sm tracking-widest uppercase">Interactive Game</span>
+                    <h2 class="font-retro text-3xl sm:text-4xl font-bold text-coffee mt-1">記憶挑戰：你認識這些老物件嗎？</h2>
+                    <p class="text-coffee-light mt-2 text-sm sm:text-base">測驗你對台灣傳統柑仔店物件的了解程度！</p>
+                </div>
+
+                <!-- 遊戲主容器 Paper Game Box -->
+                <div class="paper-card bg-cream p-6 sm:p-8 rounded-xl relative max-w-2xl mx-auto">
+                    <!-- 遊戲進度與計分 Header -->
+                    <div class="flex justify-between items-center border-b-2 border-coffee pb-4 mb-6">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-mustard text-coffee text-xs font-bold px-3 py-1 rounded-full border border-coffee" id="quizProgress">第 1 / 5 題</span>
+                        </div>
+                        <div class="font-bold text-coffee flex items-center gap-1">
+                            <i data-lucide="trophy" class="w-4 h-4 text-mustard"></i>
+                            得分：<span id="quizScore" class="text-brick text-xl font-black">0</span>
+                        </div>
+                    </div>
+
+                    <!-- 題目區域 Container -->
+                    <div id="quizQuestionArea">
+                        <div class="text-center mb-6">
+                            <div id="quizImage" class="w-32 h-32 mx-auto bg-paper border-2 border-coffee rounded-lg flex items-center justify-center text-6xl shadow-inner mb-4">
+                                🍬
+                            </div>
+                            <h3 id="quizQuestion" class="font-retro text-xl font-bold text-coffee">這款透明牙膏狀包裝、擠出來甜甜的古早味零食叫什麼？</h3>
+                        </div>
+
+                        <!-- 選項列表 -->
+                        <div class="grid grid-cols-1 gap-3 mb-6" id="quizOptions">
+                            <!-- JS 生成選項按鈕 -->
+                        </div>
+
+                        <!-- 答案說明區塊 Feedback Area -->
+                        <div id="quizFeedback" class="hidden p-4 rounded-lg border-2 border-coffee bg-paper text-sm mb-4">
+                            <div id="quizResultTitle" class="font-bold text-base mb-1"></div>
+                            <div id="quizResultDesc" class="text-coffee-light"></div>
+                        </div>
+
+                        <!-- 下一題 / 重來按鈕 -->
+                        <button id="nextQuizBtn" onclick="nextQuestion()" class="hidden w-full signboard py-3 rounded-lg font-bold text-base hover:bg-brick-dark cursor-pointer text-center">
+                            下一題 <i data-lucide="arrow-right" class="inline w-4 h-4 ml-1"></i>
+                        </button>
+                    </div>
+
+                    <!-- 結算畫面 (初始隱藏) -->
+                    <div id="quizResultArea" class="hidden text-center py-8 space-y-4">
+                        <div class="w-20 h-20 bg-mustard text-coffee rounded-full border-2 border-coffee flex items-center justify-center text-4xl mx-auto shadow-md">
+                            🎉
+                        </div>
+                        <h3 class="font-retro text-2xl font-bold text-coffee">挑戰完成！</h3>
+                        <p class="text-base text-coffee">您的最終得分為：<span id="finalScore" class="text-3xl font-black text-brick">0</span> 分</p>
+                        <p id="quizEvalText" class="text-sm text-coffee-light bg-paper p-4 rounded-lg border border-coffee max-w-md mx-auto"></p>
+                        <button onclick="restartQuiz()" class="paper-card bg-mustard text-coffee px-8 py-3 rounded-lg font-bold hover:bg-mustard/90 cursor-pointer inline-flex items-center gap-2">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            再試一次
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 文化檔案與留言板 Section -->
+        <section id="archive" class="py-16 max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <!-- 左側：文化價值介紹 -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div>
+                        <span class="text-brick font-bold text-sm tracking-widest uppercase">Cultural Archive</span>
+                        <h2 class="font-retro text-3xl font-bold text-coffee mt-1">留住消失中的日常人情</h2>
+                    </div>
+                    
+                    <div class="paper-card p-6 bg-cream rounded-xl space-y-4">
+                        <h3 class="font-retro text-xl font-bold text-brick flex items-center gap-2">
+                            <i data-lucide="store" class="w-5 h-5"></i>
+                            不只是賣東西，更是社區的溫情網絡
+                        </h3>
+                        <p class="text-sm text-coffee leading-relaxed">
+                            傳統柑仔店通常由家族世代經營，老闆熟知巷口每家每戶的生活細節。這裡不僅是媽媽買鹽、爸爸買菸的場所，更是照顧社區學童、暫存寄物、甚至聽取地方軼聞的情報交換站。
+                        </p>
+                        <div class="grid grid-cols-2 gap-4 pt-2">
+                            <div class="bg-paper p-3 rounded border border-coffee/30 text-xs">
+                                <span class="font-bold text-coffee block mb-1">【公賣局煙酒牌】</span>
+                                圓形鐵牌懸掛門口，代表國家特許經營證照與誠信經營。
+                            </div>
+                            <div class="bg-paper p-3 rounded border border-coffee/30 text-xs">
+                                <span class="font-bold text-coffee block mb-1">【賒帳信任文化】</span>
+                                「先記在冊仔上，月底發薪再來結」，展現早期台灣社會濃厚的互信。
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 資料來源 Reference -->
+                    <div class="p-4 bg-paper rounded-lg border border-coffee/40 text-xs text-coffee-light space-y-1">
+                        <p class="font-bold text-coffee">📚 文史參考與典藏資料來源：</p>
+                        <p>1. 國立台灣歷史博物館《台灣生活記憶典藏庫》</p>
+                        <p>2. 地方文史工作者與台灣早期懷舊物資調查報告 (1960-1990)</p>
+                    </div>
+                </div>
+
+                <!-- 右側：我記得的柑仔店 (留言互動區) -->
+                <div class="lg:col-span-5">
+                    <div class="paper-card bg-cream p-6 rounded-xl flex flex-col h-full">
+                        <h3 class="font-retro text-xl font-bold text-coffee mb-2 flex items-center gap-2">
+                            <i data-lucide="message-square-heart" class="w-5 h-5 text-brick"></i>
+                            我記得的柑仔店｜回憶留言板
+                        </h3>
+                        <p class="text-xs text-coffee-light mb-4">（註：此為前端展示頁面，留言將暫存於您的瀏覽器中）</p>
+
+                        <!-- 輸入框 Form -->
+                        <form id="memoryForm" onsubmit="addMemory(event)" class="space-y-3 mb-6">
+                            <div>
+                                <input type="text" id="memoryName" required placeholder="您的暱稱（例如：阿雄、巷口小明）" class="w-full text-xs p-2.5 rounded border-2 border-coffee bg-paper focus:outline-none focus:border-brick">
+                            </div>
+                            <div>
+                                <textarea id="memoryContent" required rows="3" placeholder="分享你小時候在柑仔店最深刻的回憶或最喜歡買的零食..." class="w-full text-xs p-2.5 rounded border-2 border-coffee bg-paper focus:outline-none focus:border-brick"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-brick text-cream py-2 rounded font-bold text-xs hover:bg-brick-dark transition border border-coffee">
+                                送出我的童年回憶
+                            </button>
+                        </form>
+
+                        <!-- 留言動態展示 Stream -->
+                        <div id="memoryList" class="space-y-3 flex-grow max-h-60 overflow-y-auto pr-1 no-scrollbar">
+                            <!-- 預設靜態留言 -->
+                            <div class="bg-paper p-3 rounded border border-coffee/30 text-xs">
+                                <div class="flex justify-between text-coffee-light font-bold mb-1">
+                                    <span>小林 (基隆)</span>
+                                    <span>1985 年代記憶</span>
+                                </div>
+                                <p class="text-coffee">小時候最喜歡拿阿公給的5元去買巧克力膏，一口擠進嘴裡超級滿足！</p>
+                            </div>
+                            <div class="bg-paper p-3 rounded border border-coffee/30 text-xs">
+                                <div class="flex justify-between text-coffee-light font-bold mb-1">
+                                    <span>美玲阿姨</span>
+                                    <span>1972 年代記憶</span>
+                                </div>
+                                <p class="text-coffee">以前幫媽媽去柑仔店買米，老闆娘都會秤多一點點，還會塞一顆紅球糖給我～</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 頁尾 Footer -->
+    <footer class="bg-coffee text-cream py-8 border-t-4 border-mustard">
+        <div class="max-w-6xl mx-auto px-4 text-center space-y-3">
+            <h4 class="font-retro font-bold text-xl text-mustard">柑仔店博物館｜KAM-A-TIAM MEMORY MUSEUM</h4>
+            <p class="text-xs text-cream/70">典藏台灣消失中的日常生活記憶與童年溫度</p>
+            <p class="text-[10px] text-cream/50">© 2026 柑仔店數位文化館. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- 商品詳情 彈出Modal -->
+    <div id="productModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="paper-card bg-cream max-w-lg w-full rounded-xl p-6 relative overflow-hidden" id="modalContent">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-coffee hover:text-brick">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div id="modalBody" class="space-y-4">
+                <!-- JS動態塞入資料 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 邏輯庫 -->
+    <script>
+        // 1. 商品資料庫 (Data Catalog)
+        const CATALOG_DATA = [
+            {
+                id: 1,
+                name: '古早味巧克力膏',
+                category: 'snacks',
+                icon: '🍫',
+                era: '1970 - 1980 年代',
+                price: '1 元 / 條',
+                desc: '塑膠軟管包裝，像小牙膏一樣擠著吃。濃郁濃甜的巧克力滋味是早期孩童放學最熱門的廉價零嘴。',
+                memory: '擠到最後一點點也要捲起來全部擠乾淨才甘心！'
+            },
+            {
+                id: 2,
+                name: '彈珠汽水',
+                category: 'drinks',
+                icon: '🥤',
+                era: '1960 年代至今',
+                price: '5 元 / 瓶',
+                desc: '特殊雙重瓶頸設計，靠玻璃彈珠封住氣體。要用專用塑膠蓋用力將彈珠壓入瓶中，飲用時伴隨彈珠碰撞叮噹聲。',
+                memory: '喝完汽水後最想拿槌子把玻璃瓶敲開把裏面的彈珠拿出來玩。'
+            },
+            {
+                id: 3,
+                name: '懷舊尪仔標',
+                category: 'toys',
+                icon: '🎴',
+                era: '1960 - 1980 年代',
+                price: '5 角 / 張',
+                desc: '圓形硬紙牌，印有西遊記、水滸傳、卡通人物或摔角選手。周圍有鋸齒狀，印有花色、棋子與數字。',
+                memory: '在地上用自己的紙牌搧對手的紙牌，壓住或翻面就能把對手的紙牌贏走！'
+            },
+            {
+                id: 4,
+                name: '公賣局鐵牌招牌',
+                category: 'daily',
+                icon: '🏮',
+                era: '1960 - 1990 年代',
+                price: '非賣品（特許標誌）',
+                desc: '台灣專賣局授權特許販售煙酒的圓形琺瑯鐵牌，懸掛於柑仔店門口，是店家誠信與社區地位的象徵。',
+                memory: '只要遠遠看到這面藍白紅相間的鐵牌，就知道柑仔店到了。'
+            },
+            {
+                id: 5,
+                name: '飛機餅乾 / 數字餅乾',
+                category: 'snacks',
+                icon: '✈️',
+                era: '1970 年代至今',
+                price: '10 元 / 兩',
+                desc: '盛裝在大玻璃糖果罐中的牛奶鹹甜餅乾，做成可愛的飛機、數字或動物造型，可以秤重購買。',
+                memory: '老闆娘會拿大鐵勺抓進紙袋裡，多給兩塊餅乾就能開心一整天。'
+            },
+            {
+                id: 6,
+                name: '木製古早陀螺',
+                category: 'toys',
+                icon: '🪀',
+                era: '1960 - 1970 年代',
+                price: '3 元 / 個',
+                desc: '堅硬木材削製而成，底部崁入鐵釘。纏繞麻繩後用力拋出，在空地上比誰旋轉得久或比拼碰撞力。',
+                memory: '下課時在泥土地上打陀螺，神氣地把別人的陀螺釘開！'
+            },
+            {
+                id: 7,
+                name: '津津蘆筍汁 / 黑松汽水',
+                category: 'drinks',
+                icon: '🥫',
+                era: '1970 年代至今',
+                price: '10 元 / 罐',
+                desc: '印有金髮女郎復古插畫的鐵罐蘆筍汁，或是復古玻璃瓶裝黑松汽水，是早期台灣夏日消暑首選。',
+                memory: '從柑仔店大冰櫃裡拿出來，瓶身還沾滿冰涼的水珠。'
+            },
+            {
+                id: 8,
+                name: '老式賒帳本（冊仔）',
+                category: 'daily',
+                icon: '📖',
+                era: '1960 - 1980 年代',
+                price: '非賣品',
+                desc: '手寫紀錄街坊鄰居買鹽買醬油的帳本。「先記帳，發薪再結」反映了早年鄉里間極度濃厚的互信關係。',
+                memory: '幫媽媽買東西只要跟老闆說「記在我們家冊仔上」就可以把東西帶回家。'
+            }
+        ];
+
+        // 2. 記憶遊戲題目庫 (Quiz Data)
+        const QUIZ_DATA = [
+            {
+                question: "這款透明牙膏狀包裝、擠出來甜甜的古早味零食叫什麼？",
+                icon: "🍫",
+                options: ["巧克力膏", "麥芽糖管", "果凍條"],
+                answer: 0,
+                desc: "正確！巧克力膏是1970-80年代非常受歡迎的廉價甜食，一條只要1元。"
+            },
+            {
+                question: "要喝「彈珠汽水」時，需要把瓶口裏面的彈珠怎麼樣才能喝到？",
+                icon: "🥤",
+                options: ["用吸管撬開", "用力向下壓入瓶中", "用轉蓋擰開"],
+                answer: 1,
+                desc: "正確！專用塑膠蓋蓋在瓶口，用力往下壓讓彈珠落入瓶頸凹槽即可飲用。"
+            },
+            {
+                question: "早期柑仔店門口懸掛的圓形鐵牌「煙酒牌」是由哪個機構頒發的？",
+                icon: "🏮",
+                options: ["台灣省專賣局（公賣局）", "經濟部商業司", "地方鄉鎮公所"],
+                answer: 0,
+                desc: "正確！公賣局鐵牌代表該店家擁有特許販售煙酒的官方認證。"
+            },
+            {
+                question: "小孩子拿著圓形硬紙牌在地上比拼「打紙牌」的童玩叫什麼？",
+                icon: "🎴",
+                options: ["尪仔標", "竹蜻蜓", "綠豆糕抽籤"],
+                answer: 0,
+                desc: "正確！尪仔標是台灣傳統的圓形紙牌童玩，圖案豐富多樣。"
+            },
+            {
+                question: "早期柑仔店提供鄰里「賒帳」時，老闆會拿出一本手寫簿冊，俗稱什麼？",
+                icon: "📖",
+                options: ["記帳簿", "寄冊仔（賒冊）", "點心簿"],
+                answer: 1,
+                desc: "正確！台語稱為「寄冊仔」，代表早期農村與街坊間極高的信任感。"
+            }
+        ];
+
+        // 狀態管理 State
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        // 初始化頁面
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderCatalog('all');
+            initQuiz();
+        });
+
+        // 頁面開門動畫 (Door Opening Animation)
+        function enterMuseum() {
+            const overlay = document.getElementById('doorOverlay');
+            overlay.classList.add('open-door');
+            
+            // Anime.js 淡出開門內容
+            anime({
+                targets: '#doorContent',
+                opacity: 0,
+                duration: 400,
+                easing: 'easeInOutQuad',
+                complete: () => {
+                    document.getElementById('doorContent').style.display = 'none';
+                    setTimeout(() => {
+                        overlay.style.pointerEvents = 'none';
+                    }, 400);
+                }
+            });
+
+            // 首頁元件浮現動畫
+            anime({
+                targets: '#hero h1, #hero p, #hero a',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(150, {start: 400}),
+                easing: 'easeOutQuad'
+            });
+        }
+
+        // 行動選單切換
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('flex');
+        }
+
+        // 渲染商品圖鑑
+        function renderCatalog(filter = 'all') {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = '';
+
+            const filtered = filter === 'all' 
+                ? CATALOG_DATA 
+                : CATALOG_DATA.filter(item => item.category === filter);
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'paper-card bg-cream p-5 rounded-xl flex flex-col justify-between cursor-pointer hover:border-brick';
+                card.onclick = () => openModal(item);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="w-full h-28 bg-paper border border-coffee/20 rounded-lg flex items-center justify-center text-5xl mb-4 shadow-inner">
+                            ${item.icon}
+                        </div>
+                        <span class="text-[10px] font-bold bg-mustard/30 text-coffee border border-mustard px-2 py-0.5 rounded">${item.era}</span>
+                        <h3 class="font-retro text-lg font-bold text-coffee mt-2">${item.name}</h3>
+                        <p class="text-xs text-coffee-light mt-1 line-clamp-2">${item.desc}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-coffee/20 flex justify-between items-center text-xs">
+                        <span class="font-bold text-brick">${item.price}</span>
+                        <span class="text-coffee font-bold hover:underline flex items-center gap-1">詳情 <i data-lucide="chevron-right" class="w-3 h-3"></i></span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            lucide.createIcons();
+
+            // Anime.js 卡片出現動畫
+            anime({
+                targets: '#catalogGrid > div',
+                scale: [0.95, 1],
+                opacity: [0, 1],
+                delay: anime.stagger(60),
+                easing: 'easeOutQuad'
+            });
+        }
+
+        // 商品篩選
+        function filterCatalog(category) {
+            document.querySelectorAll('.catalog-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-brick', 'text-cream');
+                btn.classList.add('bg-cream', 'text-coffee');
+            });
+            event.target.classList.remove('bg-cream', 'text-coffee');
+            event.target.classList.add('bg-brick', 'text-cream');
+
+            renderCatalog(category);
+        }
+
+        // 彈出商品 Modal
+        function openModal(item) {
+            const body = document.getElementById('modalBody');
+            body.innerHTML = `
+                <div class="text-center">
+                    <div class="w-24 h-24 mx-auto bg-paper border-2 border-coffee rounded-lg flex items-center justify-center text-6xl shadow-inner mb-3">
+                        ${item.icon}
+                    </div>
+                    <span class="text-xs font-bold bg-mustard text-coffee px-3 py-1 rounded-full border border-coffee inline-block mb-1">${item.era}</span>
+                    <h3 class="font-retro text-2xl font-bold text-coffee">${item.name}</h3>
+                    <p class="text-xs text-brick font-bold mt-1">早期參考價格：${item.price}</p>
+                </div>
+                <div class="bg-paper p-4 rounded-lg border border-coffee/30 text-xs space-y-2">
+                    <div>
+                        <span class="font-bold text-coffee block">【物品歷史與特色】</span>
+                        <p class="text-coffee-light leading-relaxed">${item.desc}</p>
+                    </div>
+                    <div>
+                        <span class="font-bold text-coffee block">【世代共同記憶】</span>
+                        <p class="text-coffee-light leading-relaxed">${item.memory}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('productModal').classList.remove('hidden');
+
+            anime({
+                targets: '#modalContent',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                duration: 250,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        // 遊戲邏輯 Game Functions
+        function initQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quizScore').innerText = quizScore;
+            document.getElementById('quizQuestionArea').classList.remove('hidden');
+            document.getElementById('quizResultArea').classList.add('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = QUIZ_DATA[currentQuizIndex];
+            document.getElementById('quizProgress').innerText = `第 ${currentQuizIndex + 1} / ${QUIZ_DATA.length} 題`;
+            document.getElementById('quizImage').innerText = q.icon;
+            document.getElementById('quizQuestion').innerText = q.question;
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+            document.getElementById('quizFeedback').classList.add('hidden');
+            document.getElementById('nextQuizBtn').classList.add('hidden');
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full paper-card bg-cream p-3 rounded-lg text-left text-sm font-bold text-coffee hover:bg-mustard/20 transition cursor-pointer flex justify-between items-center';
+                btn.innerHTML = `<span>${idx + 1}. ${opt}</span> <i data-lucide="circle" class="w-4 h-4 text-coffee/40"></i>`;
+                btn.onclick = () => selectAnswer(idx);
+                optionsContainer.appendChild(btn);
+            });
+
+            lucide.createIcons();
+        }
+
+        function selectAnswer(selectedIndex) {
+            const q = QUIZ_DATA[currentQuizIndex];
+            const options = document.getElementById('quizOptions').children;
+            const feedback = document.getElementById('quizFeedback');
+            const resultTitle = document.getElementById('quizResultTitle');
+            const resultDesc = document.getElementById('quizResultDesc');
+
+            // 禁用所有按鈕
+            for (let btn of options) {
+                btn.onclick = null;
+                btn.classList.add('opacity-60', 'cursor-not-allowed');
+            }
+
+            if (selectedIndex === q.answer) {
+                quizScore += 20;
+                document.getElementById('quizScore').innerText = quizScore;
+                options[selectedIndex].classList.remove('bg-cream', 'opacity-60');
+                options[selectedIndex].classList.add('bg-darkgreen', 'text-cream');
+                resultTitle.innerText = "⭕ 正確答案！";
+                resultTitle.className = "font-bold text-base mb-1 text-darkgreen";
+            } else {
+                options[selectedIndex].classList.remove('bg-cream', 'opacity-60');
+                options[selectedIndex].classList.add('bg-brick', 'text-cream');
+                options[q.answer].classList.remove('opacity-60');
+                options[q.answer].classList.add('bg-darkgreen', 'text-cream');
+                resultTitle.innerText = "❌ 答錯了！";
+                resultTitle.className = "font-bold text-base mb-1 text-brick";
+            }
+
+            resultDesc.innerText = q.desc;
+            feedback.classList.remove('hidden');
+            document.getElementById('nextQuizBtn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < QUIZ_DATA.length) {
+                showQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function showQuizResult() {
+            document.getElementById('quizQuestionArea').classList.add('hidden');
+            document.getElementById('quizResultArea').classList.remove('hidden');
+            document.getElementById('finalScore').innerText = quizScore;
+
+            const evalText = document.getElementById('quizEvalText');
+            if (quizScore === 100) {
+                evalText.innerText = "太厲害了！你是正牌柑仔店達人，童年記憶保存得超級完整！";
+            } else if (quizScore >= 60) {
+                evalText.innerText = "很不錯喔！你對台灣早期柑仔店文化有相當好的了解！";
+            } else {
+                evalText.innerText = "沒關係，多逛逛我們的「商品圖鑑」與「時光故事」，重溫童年記憶吧！";
+            }
+        }
+
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        // 留言互動區邏輯
+        function addMemory(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('memoryName');
+            const contentInput = document.getElementById('memoryContent');
+            const list = document.getElementById('memoryList');
+
+            const item = document.createElement('div');
+            item.className = 'bg-paper p-3 rounded border border-coffee/30 text-xs shadow-sm';
+            item.innerHTML = `
+                <div class="flex justify-between text-coffee-light font-bold mb-1">
+                    <span>${nameInput.value}</span>
+                    <span>剛剛發佈</span>
+                </div>
+                <p class="text-coffee">${contentInput.value}</p>
+            `;
+
+            list.insertBefore(item, list.firstChild);
+
+            // 動態新增視覺回饋
+            anime({
+                targets: item,
+                translateY: [-10, 0],
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuad'
+            });
+
+            nameInput.value = '';
+            contentInput.value = '';
+        }
+    </script>
+</body>
+</html>
